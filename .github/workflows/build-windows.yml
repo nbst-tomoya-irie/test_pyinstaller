@@ -5,6 +5,7 @@ on:
     branches:
       - main
       - copilot/**
+      - 20260303_tkinter
   pull_request:
     branches:
       - main
@@ -32,7 +33,7 @@ jobs:
         
     - name: Build executable with PyInstaller
       run: |
-        pyinstaller --onefile --name test_app main.py
+        pyinstaller --onefile --windowed --name test_app main.py
         
     - name: Upload artifact
       uses: actions/upload-artifact@v4
