@@ -19,7 +19,7 @@ class LngSimulatorApp:
         input_frame.pack(padx=10, pady=(10, 5), fill="x")
 
         # Panama Ratio
-        ttk.Label(input_frame, text="Panama Ratio (0.0 ~ 1.0):").grid(
+        ttk.Label(input_frame, text="Panama Ratio (0.00 ~ 1.00):").grid(
             row=0, column=0, sticky="w", pady=5
         )
         self.panama_var = tk.StringVar(value="0.5")
@@ -27,12 +27,28 @@ class LngSimulatorApp:
         self.panama_entry.grid(row=0, column=1, padx=(10, 0), pady=5)
 
         # Suez Ratio
-        ttk.Label(input_frame, text="Suez Ratio (0.0 ~ 1.0):").grid(
+        ttk.Label(input_frame, text="Suez Ratio (0.00 ~ 1.00):").grid(
             row=1, column=0, sticky="w", pady=5
         )
         self.suez_var = tk.StringVar(value="0.5")
         self.suez_entry = ttk.Entry(input_frame, textvariable=self.suez_var, width=10)
         self.suez_entry.grid(row=1, column=1, padx=(10, 0), pady=5)
+
+        # Ave. Nav Speed
+        ttk.Label(input_frame, text="Ave. Nav Speed (0.00 ~ 100.00):").grid(
+            row=2, column=0, sticky="w", pady=5
+        )
+        self.nav_speed_var = tk.StringVar(value="16")
+        self.nav_speed_entry = ttk.Entry(input_frame, textvariable=self.nav_speed_var, width=10)
+        self.nav_speed_entry.grid(row=2, column=1, padx=(10, 0), pady=5)
+
+        # Utilization
+        ttk.Label(input_frame, text="Utilization (0.00 ~ 1.00):").grid(
+            row=3, column=0, sticky="w", pady=5
+        )
+        self.utilization_var = tk.StringVar(value="0.75")
+        self.utilization_entry = ttk.Entry(input_frame, textvariable=self.utilization_var, width=10)
+        self.utilization_entry.grid(row=3, column=1, padx=(10, 0), pady=5)
 
         # --- Extension canal_usage_config ---
         ext_frame = ttk.LabelFrame(root, text="Extension canal_usage_config", padding=10)
@@ -72,14 +88,14 @@ class LngSimulatorApp:
         self.message_text.delete("1.0", "end")
         self.message_text.configure(state="disabled")
 
-    def validate_ratio(self, value_str, name):
+    def validate_range(self, value_str, name, low, high):
         try:
             v = float(value_str)
         except ValueError:
             self.append_message(f"[Error] Please enter a numeric value for {name}.")
             return None
-        if not (0.0 <= v <= 1.0):
-            self.append_message(f"[Error] {name} must be in the range 0.0 ~ 1.0.")
+        if not (low <= v <= high):
+            self.append_message(f"[Error] {name} must be in the range {low} ~ {high}.")
             return None
         return v
 
@@ -87,6 +103,8 @@ class LngSimulatorApp:
         state = "disabled" if self.use_excel_var.get() else "normal"
         self.panama_entry.configure(state=state)
         self.suez_entry.configure(state=state)
+        self.nav_speed_entry.configure(state=state)
+        self.utilization_entry.configure(state=state)
 
     def run_calculation(self):
         self.clear_messages()
@@ -97,23 +115,30 @@ class LngSimulatorApp:
             self.run_button.configure(state="disabled")
             panama = None
             suez = None
+            nav_speed = None
+            utilization = None
         else:
-            panama = self.validate_ratio(self.panama_var.get(), "Panama Ratio")
-            suez = self.validate_ratio(self.suez_var.get(), "Suez Ratio")
-            if panama is None or suez is None:
+            panama = self.validate_range(self.panama_var.get(), "Panama Ratio", 0.0, 1.0)
+            suez = self.validate_range(self.suez_var.get(), "Suez Ratio", 0.0, 1.0)
+            nav_speed = self.validate_range(self.nav_speed_var.get(), "Ave. Nav Speed", 0.0, 100.0)
+            utilization = self.validate_range(self.utilization_var.get(), "Utilization", 0.0, 1.0)
+            if any(v is None for v in (panama, suez, nav_speed, utilization)):
                 return
-            self.append_message(f"Panama Ratio: {panama}, Suez Ratio: {suez}")
+            self.append_message(
+                f"Panama Ratio: {panama:.2f}, Suez Ratio: {suez:.2f}, "
+                f"Ave. Nav Speed: {nav_speed:.2f}, Utilization: {utilization:.2f}"
+            )
             self.append_message("Running calculation...")
             self.run_button.configure(state="disabled")
 
         thread = threading.Thread(
-            target=self._execute, args=(panama, suez), daemon=True
+            target=self._execute, args=(panama, suez, nav_speed, utilization), daemon=True
         )
         thread.start()
 
-    def _execute(self, panama_ratio, suez_ratio):
+    def _execute(self, panama_ratio, suez_ratio, nav_speed, utilization):
         try:
-            result = run_logic(panama_ratio, suez_ratio)
+            result = run_logic(panama_ratio, suez_ratio, nav_speed, utilization)
             self.root.after(0, self.append_message, result)
             self.root.after(0, self.append_message, "Completed.")
         except Exception as e:
