@@ -18,37 +18,37 @@ class LngSimulatorApp:
         input_frame = ttk.LabelFrame(root, text="Parameter Settings", padding=10)
         input_frame.pack(padx=10, pady=(10, 5), fill="x")
 
-        # Panama Ratio
-        ttk.Label(input_frame, text="Panama Ratio (0.00 ~ 1.00):").grid(
-            row=0, column=0, sticky="w", pady=5
-        )
-        self.panama_var = tk.StringVar(value="0.50")
-        self.panama_entry = ttk.Entry(input_frame, textvariable=self.panama_var, width=10)
-        self.panama_entry.grid(row=0, column=1, padx=(10, 0), pady=5)
-
-        # Suez Ratio
-        ttk.Label(input_frame, text="Suez Ratio (0.00 ~ 1.00):").grid(
-            row=1, column=0, sticky="w", pady=5
-        )
-        self.suez_var = tk.StringVar(value="0.50")
-        self.suez_entry = ttk.Entry(input_frame, textvariable=self.suez_var, width=10)
-        self.suez_entry.grid(row=1, column=1, padx=(10, 0), pady=5)
-
         # Ave. Nav Speed
-        ttk.Label(input_frame, text="Ave. Nav Speed (0.00 ~ 100.00):").grid(
-            row=2, column=0, sticky="w", pady=5
+        ttk.Label(input_frame, text="Ave. Nav Speed (knot):").grid(
+            row=0, column=0, sticky="w", pady=5
         )
         self.nav_speed_var = tk.StringVar(value="16.00")
         self.nav_speed_entry = ttk.Entry(input_frame, textvariable=self.nav_speed_var, width=10)
-        self.nav_speed_entry.grid(row=2, column=1, padx=(10, 0), pady=5)
+        self.nav_speed_entry.grid(row=0, column=1, padx=(10, 0), pady=5)
 
         # Utilization
-        ttk.Label(input_frame, text="Utilization (0.00 ~ 1.00):").grid(
+        ttk.Label(input_frame, text="Utilization (%):").grid(
+            row=1, column=0, sticky="w", pady=5
+        )
+        self.utilization_var = tk.StringVar(value="75")
+        self.utilization_entry = ttk.Entry(input_frame, textvariable=self.utilization_var, width=10)
+        self.utilization_entry.grid(row=1, column=1, padx=(10, 0), pady=5)
+
+        # Panama Ratio
+        ttk.Label(input_frame, text="Panama Ratio (%):").grid(
+            row=2, column=0, sticky="w", pady=5
+        )
+        self.panama_var = tk.StringVar(value="50")
+        self.panama_entry = ttk.Entry(input_frame, textvariable=self.panama_var, width=10)
+        self.panama_entry.grid(row=2, column=1, padx=(10, 0), pady=5)
+
+        # Suez Ratio
+        ttk.Label(input_frame, text="Suez Ratio (%):").grid(
             row=3, column=0, sticky="w", pady=5
         )
-        self.utilization_var = tk.StringVar(value="0.75")
-        self.utilization_entry = ttk.Entry(input_frame, textvariable=self.utilization_var, width=10)
-        self.utilization_entry.grid(row=3, column=1, padx=(10, 0), pady=5)
+        self.suez_var = tk.StringVar(value="50")
+        self.suez_entry = ttk.Entry(input_frame, textvariable=self.suez_var, width=10)
+        self.suez_entry.grid(row=3, column=1, padx=(10, 0), pady=5)
 
         # --- Extension canal_usage_config ---
         ext_frame = ttk.LabelFrame(root, text="Extension canal_usage_config", padding=10)
@@ -118,16 +118,19 @@ class LngSimulatorApp:
             nav_speed = None
             utilization = None
         else:
-            panama = self.validate_range(self.panama_var.get(), "Panama Ratio", 0.0, 1.0)
-            suez = self.validate_range(self.suez_var.get(), "Suez Ratio", 0.0, 1.0)
+            panama = self.validate_range(self.panama_var.get(), "Panama Ratio", 0.0, 100.0)
+            suez = self.validate_range(self.suez_var.get(), "Suez Ratio", 0.0, 100.0)
             nav_speed = self.validate_range(self.nav_speed_var.get(), "Ave. Nav Speed", 0.0, 100.0)
-            utilization = self.validate_range(self.utilization_var.get(), "Utilization", 0.0, 1.0)
+            utilization = self.validate_range(self.utilization_var.get(), "Utilization", 0.0, 100.0)
             if any(v is None for v in (panama, suez, nav_speed, utilization)):
                 return
             self.append_message(
-                f"Panama Ratio: {panama:.2f}, Suez Ratio: {suez:.2f}, "
-                f"Ave. Nav Speed: {nav_speed:.2f}, Utilization: {utilization:.2f}"
+                f"Panama Ratio: {panama:.2f}%, Suez Ratio: {suez:.2f}%, "
+                f"Ave. Nav Speed: {nav_speed:.2f} knot, Utilization: {utilization:.2f}%"
             )
+            panama /= 100.0
+            suez /= 100.0
+            utilization /= 100.0
             self.append_message("Running calculation...")
             self.run_button.configure(state="disabled")
 
