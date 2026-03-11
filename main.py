@@ -22,7 +22,7 @@ class LngSimulatorApp:
         ttk.Label(input_frame, text="Panama Ratio (0.00 ~ 1.00):").grid(
             row=0, column=0, sticky="w", pady=5
         )
-        self.panama_var = tk.StringVar(value="0.5")
+        self.panama_var = tk.StringVar(value="0.50")
         self.panama_entry = ttk.Entry(input_frame, textvariable=self.panama_var, width=10)
         self.panama_entry.grid(row=0, column=1, padx=(10, 0), pady=5)
 
@@ -30,7 +30,7 @@ class LngSimulatorApp:
         ttk.Label(input_frame, text="Suez Ratio (0.00 ~ 1.00):").grid(
             row=1, column=0, sticky="w", pady=5
         )
-        self.suez_var = tk.StringVar(value="0.5")
+        self.suez_var = tk.StringVar(value="0.50")
         self.suez_entry = ttk.Entry(input_frame, textvariable=self.suez_var, width=10)
         self.suez_entry.grid(row=1, column=1, padx=(10, 0), pady=5)
 
@@ -38,7 +38,7 @@ class LngSimulatorApp:
         ttk.Label(input_frame, text="Ave. Nav Speed (0.00 ~ 100.00):").grid(
             row=2, column=0, sticky="w", pady=5
         )
-        self.nav_speed_var = tk.StringVar(value="16")
+        self.nav_speed_var = tk.StringVar(value="16.00")
         self.nav_speed_entry = ttk.Entry(input_frame, textvariable=self.nav_speed_var, width=10)
         self.nav_speed_entry.grid(row=2, column=1, padx=(10, 0), pady=5)
 
