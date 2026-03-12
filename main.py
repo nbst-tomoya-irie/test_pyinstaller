@@ -50,6 +50,10 @@ class LngSimulatorApp:
         self.suez_entry = ttk.Entry(input_frame, textvariable=self.suez_var, width=10)
         self.suez_entry.grid(row=3, column=1, padx=(10, 0), pady=5)
 
+        # Default button
+        self.default_button = ttk.Button(input_frame, text="Default", command=self._reset_defaults)
+        self.default_button.grid(row=4, column=0, columnspan=2, sticky="e", pady=(10, 0))
+
         # --- Extension canal_usage_config ---
         ext_frame = ttk.LabelFrame(root, text="Extension canal_usage_config", padding=10)
         ext_frame.pack(padx=10, pady=(5, 5), fill="x")
@@ -99,12 +103,19 @@ class LngSimulatorApp:
             return None
         return v
 
+    def _reset_defaults(self):
+        self.nav_speed_var.set("16.00")
+        self.utilization_var.set("75")
+        self.panama_var.set("50")
+        self.suez_var.set("50")
+
     def _toggle_entries(self):
         state = "disabled" if self.use_excel_var.get() else "normal"
         self.panama_entry.configure(state=state)
         self.suez_entry.configure(state=state)
         self.nav_speed_entry.configure(state=state)
         self.utilization_entry.configure(state=state)
+        self.default_button.configure(state=state)
 
     def run_calculation(self):
         self.clear_messages()
